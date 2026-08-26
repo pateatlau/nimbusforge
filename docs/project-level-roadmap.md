@@ -24,7 +24,7 @@ This roadmap tracks repository-wide work in priority order. Detailed feature pla
 - PostgreSQL, Docker Compose, migrations, and seed data
 - Backend modularization beyond `main.py`
 - Backend and frontend automated tests
-- Root repository tooling and pinned Python/Node.js runtime versions
+- Root repository tooling and pinned Python/Node.js runtime versions (completed in Phase 0)
 - Tailwind CSS, shadcn/ui, design tokens, and reusable frontend components
 - ESLint and Prettier for frontend quality checks
 - Ruff and Pyright for backend quality checks
@@ -46,7 +46,7 @@ The checkboxes below describe the target project state. A command shown in a fut
 | Backend modularity                   | Planned                            |
 | Automated tests                      | Planned                            |
 | Frontend design system               | Planned                            |
-| Root tooling and runtime pinning     | Planned                            |
+| Root tooling and runtime pinning     | Implemented                        |
 | Frontend and backend quality tooling | Planned                            |
 | Pre-commit and CI/CD                 | Planned                            |
 | Deployment and operations            | Planned                            |
@@ -63,7 +63,7 @@ The checkboxes below describe the target project state. A command shown in a fut
 - [uv](https://docs.astral.sh/uv/)
 - Node.js with npm
 - Git
-- A repository-root Python version pinned in `.python-version` and Node.js version pinned in `.nvmrc`, once section 0 adds root-level runtime pinning (the backend already pins its own version in `backend/.python-version`)
+- Repository-root Python and Node.js runtimes are pinned in `.python-version` and `.nvmrc`, and the backend also pins its own Python version in `backend/.python-version`
 - Docker Desktop or Docker Engine and Docker Compose, once section 1 is implemented
 - An AWS account and AWS CLI access once section 10 is implemented
 - A pre-commit installation once section 9 is implemented
@@ -125,19 +125,21 @@ npx nx graph
 npx nx affected -t lint,test,build
 ```
 
-## 0. Repository and Runtime Foundation
+## Phase 0. Repository and Runtime Foundation
 
-- [ ] Add a root `package.json` and lockfile for pinned Nx and repository-level Node tooling.
-- [ ] Keep frontend and backend dependency ownership in their existing manifests and document the boundary.
-- [ ] Pin the Python version in `.python-version` and the Node.js version in `.nvmrc` or an equivalent declaration.
-- [ ] Use the same pinned runtime versions locally and in GitHub Actions.
-- [ ] Use `uv sync --locked` and `npm ci` in CI so dependency installation cannot rewrite lockfiles.
-- [ ] Keep all lockfiles committed and fail CI when a manifest and lockfile disagree.
-- [ ] Add a root `.editorconfig` defining UTF-8, LF line endings, indentation, trailing whitespace, and final-newline conventions.
-- [ ] Make the root README the complete onboarding entry point, including prerequisites, installation, configuration, local topology, native commands, and Nx commands.
-- [ ] Verify that a new developer can reach a working environment from a clean clone without undocumented steps.
+- [x] Add a root `package.json` and lockfile for pinned Nx and repository-level Node tooling.
+- [x] Keep frontend and backend dependency ownership in their existing manifests and document the boundary.
+- [x] Pin the Python version in `.python-version` and the Node.js version in `.nvmrc` or an equivalent declaration.
+- [x] Use the same pinned runtime versions locally and in GitHub Actions.
+- [x] Use `uv sync --locked` and `npm ci` in CI so dependency installation cannot rewrite lockfiles.
+- [x] Keep all lockfiles committed and fail CI when a manifest and lockfile disagree.
+- [x] Add a root `.editorconfig` defining UTF-8, LF line endings, indentation, trailing whitespace, and final-newline conventions.
+- [x] Make the root README the complete onboarding entry point, including prerequisites, installation, configuration, local topology, native commands, and Nx commands.
+- [x] Verify that a new developer can reach a working environment from a clean clone without undocumented steps.
 
 **Done when:** runtime and dependency installation are reproducible, ownership of each tooling layer is unambiguous, and the root README is sufficient to begin development.
+
+**Status:** Completed for Phase 0.
 
 ### Assumptions and Risks
 
@@ -171,7 +173,7 @@ npx nx affected -t lint,test,build
 
 Milestones group related numbered sections rather than mapping to them one-to-one; consult the section list below for the full checklist behind each milestone.
 
-## 1. Containers and Database
+## Phase 1. Containers and Database
 
 Detailed plan: [Database implementation plan](db-implementation.md)
 
@@ -232,7 +234,7 @@ uv run python -m app.seed
 
 These commands are intentionally documented before implementation so the target developer experience is clear. Until the database work is complete, the current workflow remains `cd backend && uv run fastapi dev main.py`, followed by `cd frontend && npm run dev` in a second terminal.
 
-## 2. Backend Modularity
+## Phase 2. Backend Modularity
 
 - [ ] Create a backend application package such as `backend/app/`.
 - [ ] Keep `backend/main.py` as a small FastAPI entry point or app import shim.
@@ -249,7 +251,7 @@ These commands are intentionally documented before implementation so the target 
 
 **Done when:** route handlers coordinate HTTP behavior, persistence code is independently testable, and `main.py` no longer owns schemas, storage, and business logic.
 
-## 3. Automated Tests
+## Phase 3. Automated Tests
 
 Explicitly separate fast unit tests, PostgreSQL-backed integration tests, and browser-level end-to-end tests. Test names, directories, documentation, and CI jobs should make the level clear.
 
@@ -288,7 +290,7 @@ Explicitly separate fast unit tests, PostgreSQL-backed integration tests, and br
 
 **Done when:** backend contracts, persistence, core frontend behavior, and one full-stack user flow are checked automatically.
 
-## 4. Frontend Architecture and Design System
+## Phase 4. Frontend Architecture and Design System
 
 ### Styling Foundation and Tokens
 
@@ -319,7 +321,7 @@ Explicitly separate fast unit tests, PostgreSQL-backed integration tests, and br
 
 **Done when:** the application has a small, documented, token-driven component layer that is consistent, responsive, accessible, and independently testable.
 
-## 5. Frontend Quality Tooling
+## Phase 5. Frontend Quality Tooling
 
 - [ ] Use **ESLint** as the frontend linter; remove Oxlint rather than maintaining overlapping lint rules.
 - [ ] Configure ESLint with `typescript-eslint`, `eslint-plugin-react-hooks`, and `eslint-plugin-react-refresh` for TypeScript and React code.
@@ -341,7 +343,7 @@ npm run typecheck     # tsc -b
 
 **Done when:** linting, formatting, and TypeScript checking run non-interactively and produce the same results locally and in CI.
 
-## 6. Backend Quality Tooling
+## Phase 6. Backend Quality Tooling
 
 - [ ] Use **Ruff** for Python linting, import sorting, and formatting.
 - [ ] Configure Ruff in `backend/pyproject.toml` with an explicit target Python version and selected rules.
@@ -364,7 +366,7 @@ uv run pyright               # static type checking
 
 **Done when:** Python linting, formatting, imports, and type checking are reproducible locally and in CI.
 
-## 7. Environment Configuration
+## Phase 7. Environment Configuration
 
 - [ ] Define backend settings with `pydantic-settings` and typed defaults where appropriate.
 - [ ] Add `backend/.env.example` containing safe local-development values.
@@ -384,7 +386,7 @@ uv run pyright               # static type checking
 
 **Done when:** a new developer can configure both applications from examples and production secrets are supplied only at runtime.
 
-## 8. Frontend Documentation Cleanup
+## Phase 8. Frontend Documentation Cleanup
 
 - [ ] Replace the generated Vite README with project-specific documentation.
 - [ ] Document prerequisites, installation, development, build, lint, test, and preview commands.
@@ -399,7 +401,7 @@ uv run pyright               # static type checking
 
 **Done when:** the frontend README describes this application rather than the starter template.
 
-## 9. Pre-Commit Hooks, CI, and CD
+## Phase 9. Pre-Commit Hooks, CI, and CD
 
 - [ ] Use **pre-commit** as the single repository-wide Git hook manager; do not combine it with Lefthook or Husky.
 - [ ] Add `.pre-commit-config.yaml` at the repository root with pinned hook revisions.
@@ -434,7 +436,7 @@ uv run pyright               # static type checking
 
 **Done when:** local hooks catch quick issues and every pull request receives reproducible quality, test, migration, and build checks.
 
-## 10. AWS Deployment and Cloud Infrastructure
+## Phase 10. AWS Deployment and Cloud Infrastructure
 
 Use the simplest production-grade AWS architecture that provides meaningful cloud-engineering practice. AWS is the only production target for this repository.
 
@@ -521,7 +523,7 @@ CloudFront
 
 **Done when:** CDK can recreate the AWS environment; React is served by S3/CloudFront; FastAPI runs on ECS/Fargate behind an ALB using immutable ECR images; private RDS stores application data; IAM, secrets, network boundaries, logs, metrics, migrations, deployment, rollback, recovery, and costs are understood and documented.
 
-## 11. API Contract and Integration Governance
+## Phase 11. API Contract and Integration Governance
 
 - [ ] Treat FastAPI's generated OpenAPI document as the canonical HTTP contract.
 - [ ] Add contract assertions for existing paths, schemas, status codes, and error bodies.
@@ -534,7 +536,7 @@ CloudFront
 
 **Why this was missing:** tests cover examples, but explicit contract governance prevents backend refactors from silently breaking frontend assumptions.
 
-## 12. Security and Dependency Maintenance
+## Phase 12. Security and Dependency Maintenance
 
 - [ ] Add Dependabot or Renovate for uv, npm, GitHub Actions, and container base images.
 - [ ] Add dependency vulnerability scanning for Python, npm, and container images.
@@ -546,7 +548,7 @@ CloudFront
 
 **Why this was missing:** secure defaults and dependency updates are ongoing repository responsibilities, not only deployment tasks.
 
-## 13. Accessibility and User-Facing Quality
+## Phase 13. Accessibility and User-Facing Quality
 
 - [ ] Verify form labels, focus order, keyboard operation, and visible focus states.
 - [ ] Announce loading, success, and error states appropriately to assistive technology.
@@ -556,7 +558,7 @@ CloudFront
 
 **Why this was missing:** functional frontend tests do not guarantee that the application is usable or accessible.
 
-## 14. Architecture Decision Records
+## Phase 14. Architecture Decision Records
 
 - [ ] Add a lightweight `docs/adr/` convention for decisions with lasting consequences.
 - [ ] Record the PostgreSQL selection and persistence model as the first decision.
@@ -566,7 +568,7 @@ CloudFront
 
 **Why this was missing:** the repository already contains implementation plans, but decision records preserve why major tools and boundaries were chosen after plans evolve.
 
-## 15. Nx Monorepo Tooling
+## Phase 15. Nx Monorepo Tooling
 
 Nx is an intentional learning and orchestration layer for this repository. It should complement the backend and frontend toolchains rather than replace them. `uv`, `npm`, Ruff, Pyright, pytest, ESLint, Prettier, TypeScript, and Vite remain the owners of their native configuration and commands.
 
@@ -612,7 +614,7 @@ nx run frontend:build      -> cd frontend && npm run build
 
 **Done when:** `nx run-many -t lint,typecheck,test,build` can coordinate the repository, `nx affected` can select changed projects in CI, native commands still work independently, and the Nx graph accurately reflects project relationships.
 
-## 16. Failure and Recovery Exercises
+## Phase 16. Failure and Recovery Exercises
 
 Deliberately introduce failures in a disposable local, test, or non-production environment, then diagnose, recover, and document the result.
 
@@ -627,7 +629,7 @@ Deliberately introduce failures in a disposable local, test, or non-production e
 
 **Done when:** each layer has at least one documented failure exercise with observable detection, a repeatable recovery procedure, and evidence that partial or broken state is not silently accepted.
 
-## 17. Repository Quality Gate and Greenfield Validation
+## Phase 17. Repository Quality Gate and Greenfield Validation
 
 - [ ] Define one root command, initially `npx nx run-many -t lint,typecheck,test,build`, as the recommended local pre-push quality gate.
 - [ ] Ensure the command works from a clean checkout, requires no unintended public network services, and clearly reports the failing project and native command.

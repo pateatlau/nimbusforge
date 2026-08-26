@@ -9,7 +9,8 @@ wheels/
 # Virtual environments
 .venv/
 
-# Frontend dependencies and build output
+# Root and project dependency installs
+node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/dist-ssr/

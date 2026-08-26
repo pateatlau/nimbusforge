@@ -1,0 +1,16 @@
+{
+  "name": "nimbusforge",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Repository-level Node tooling and Nx orchestration for NimbusForge.",
+  "scripts": {
+    "nx": "nx"
+  },
+  "devDependencies": {
+    "nx": "20.8.2"
+  },
+  "engines": {
+    "node": "22.12.0",
+    "npm": "10.9.2"
+  }
+}
