@@ -4,9 +4,9 @@ FastAPI backend for NimbusForge.
 
 ## Prerequisites
 
-- Python 3.12
+- Python 3.12 (pinned in both the repository-root `.python-version` and `backend/.python-version`; keep them in sync)
 - [uv](https://docs.astral.sh/uv/)
-- Repository root runtime pinning is defined in the top-level `.python-version`
+- Root runtime pinning is defined in the top-level `.python-version` and the backend runtime pin is defined in `backend/.python-version`
 
 ## Development
 

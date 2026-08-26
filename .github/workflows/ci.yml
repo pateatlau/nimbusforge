@@ -35,8 +35,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
+          npm-version: 10.9.2
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            frontend/package-lock.json
 
       - name: Install root Node tooling
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: frontend
         run: npm ci
