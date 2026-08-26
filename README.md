@@ -8,7 +8,7 @@ Python/FastAPI, React/TypeScript, and repository-level engineering workflows.
 - **Backend:** Python 3.12, FastAPI, Pydantic, SQLAlchemy, Alembic, asyncpg, and uv
 - **Frontend:** React 19, TypeScript, Vite, and Oxlint
 - **Database:** PostgreSQL 16 in Docker Compose
-- **Repository tooling:** Node.js 22.23.0, npm 10.9.2, and Nx
+- **Repository tooling:** Node.js 24.11.0, npm 11.6.1, and Nx
 
 ## Repository Structure
 
@@ -35,7 +35,7 @@ Python/FastAPI, React/TypeScript, and repository-level engineering workflows.
 - Git
 - Python 3.12
 - [uv](https://docs.astral.sh/uv/)
-- Node.js 22.23.0 and npm 10.9.2
+- Node.js 24.11.0 and npm 11.6.1
 - Docker Desktop or Docker Engine with Docker Compose
 
 ## Runtime and Dependency Ownership
@@ -51,7 +51,7 @@ From the repository root:
 ```bash
 nvm install
 nvm use
-npm install -g npm@10.9.2
+npm install -g npm@11.6.1
 npm ci
 
 cd backend
