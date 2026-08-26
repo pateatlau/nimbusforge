@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import httpx
 
 app = FastAPI()
 
@@ -68,12 +67,3 @@ async def delete_item(item_id: int):
     if item_id not in items:
         raise HTTPException(status_code=404, detail="Item not found")
     del items[item_id]
-
-
-@app.get("/exchange-rates")
-async def get_exchange_rattes():
-    url = "https://api.exchangerate-api.com/v4/latest/USD"
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url)
-        data = response.json()
-    return data
