@@ -11,7 +11,10 @@ This roadmap tracks repository-wide work in priority order. Detailed feature pla
 **Implemented today:**
 
 - The backend is a FastAPI application in `backend/main.py`.
-- Item CRUD works through an in-memory store, so item data is lost when the backend restarts.
+- Item CRUD is persisted in PostgreSQL through SQLAlchemy's async ORM.
+- Docker Compose provides PostgreSQL 16 with health checks, a named volume, and a dedicated test database.
+- Alembic owns schema migrations, and committed fixtures load through a transactional, idempotent seed command.
+- PostgreSQL-backed Phase 1 integration tests cover migrations, CRUD compatibility, transactions, constraints, seeding, and outages.
 - The frontend is a React, TypeScript, and Vite application in `frontend/`.
 - Vite proxies frontend `/api` requests to the backend at `http://localhost:8000`.
 - Backend and frontend dependencies are separated into their own project directories.
@@ -22,13 +25,12 @@ This roadmap tracks repository-wide work in priority order. Detailed feature pla
 
 **Not implemented yet:**
 
-- PostgreSQL, Docker Compose, migrations, and seed data
-- Backend modularization beyond `main.py`
-- Backend and frontend automated tests
+- Backend modularization beyond the persistence modules required by Phase 1
+- Backend tests outside Phase 1 database integration coverage, and frontend automated tests
 - Tailwind CSS, shadcn/ui, design tokens, and reusable frontend components
 - ESLint and Prettier for frontend quality checks
 - Ruff and Pyright for backend quality checks
-- Environment examples and environment-specific configuration
+- Frontend environment examples and environment-specific configuration beyond the implemented backend local defaults
 - Pre-commit hooks, CI/CD, and deployment configuration
 - Nx monorepo orchestration
 - AWS CDK infrastructure and production deployment
@@ -37,26 +39,26 @@ The checkboxes below describe the target project state. A command shown in a fut
 
 ### Status Snapshot
 
-| Area                                 | Status                             |
-| ------------------------------------ | ---------------------------------- |
-| Backend/frontend separation          | Implemented                        |
-| FastAPI item CRUD                    | Implemented with in-memory storage |
-| React/Vite frontend                  | Implemented                        |
-| PostgreSQL persistence               | Planned                            |
-| Backend modularity                   | Planned                            |
-| Automated tests                      | Planned                            |
-| Frontend design system               | Planned                            |
-| Root tooling and runtime pinning     | Implemented                        |
-| Frontend and backend quality tooling | Planned                            |
-| Pre-commit and CI/CD                 | Planned                            |
-| Deployment and operations            | Planned                            |
-| AWS cloud infrastructure             | Planned                            |
-| Nx orchestration                     | Planned                            |
-| API contract governance              | Planned                            |
-| Security and dependency maintenance  | Planned                            |
-| Accessibility                        | Planned                            |
-| Architecture decision records        | Planned                            |
-| Failure and recovery exercises       | Planned                            |
+| Area                                 | Status                      |
+| ------------------------------------ | --------------------------- |
+| Backend/frontend separation          | Implemented                 |
+| FastAPI item CRUD                    | Implemented with PostgreSQL |
+| React/Vite frontend                  | Implemented                 |
+| PostgreSQL persistence               | Implemented                 |
+| Backend modularity                   | Planned                     |
+| Automated tests                      | Phase 1 integration tests   |
+| Frontend design system               | Planned                     |
+| Root tooling and runtime pinning     | Implemented                 |
+| Frontend and backend quality tooling | Planned                     |
+| Pre-commit and CI/CD                 | Planned                     |
+| Deployment and operations            | Planned                     |
+| AWS cloud infrastructure             | Planned                     |
+| Nx orchestration                     | Planned                     |
+| API contract governance              | Planned                     |
+| Security and dependency maintenance  | Planned                     |
+| Accessibility                        | Planned                     |
+| Architecture decision records        | Planned                     |
+| Failure and recovery exercises       | Planned                     |
 
 ### Prerequisites
 
@@ -64,7 +66,7 @@ The checkboxes below describe the target project state. A command shown in a fut
 - Node.js with npm
 - Git
 - Repository-root Python and Node.js runtimes are pinned in `.python-version` and `.nvmrc`, and the backend also pins its own Python version in `backend/.python-version`
-- Docker Desktop or Docker Engine and Docker Compose, once section 1 is implemented
+- Docker Desktop or Docker Engine and Docker Compose
 - An AWS account and AWS CLI access once section 10 is implemented
 - A pre-commit installation once section 9 is implemented
 
@@ -101,8 +103,11 @@ Nx must not become the owner of backend or frontend dependencies. Its targets sh
 The commands currently available are:
 
 ```bash
-# Terminal 1
+# Terminal 1: database, schema, seed, and backend
 cd backend
+docker compose up -d --wait db
+uv run alembic upgrade head
+uv run python -m app.seed
 uv run fastapi dev main.py
 
 # Terminal 2
@@ -111,7 +116,7 @@ npm install
 npm run dev
 ```
 
-The planned workflow, available after section 1 is implemented, adds PostgreSQL, migrations, and seeding before starting the backend:
+The implemented local workflow starts PostgreSQL, migrations, and seeding before the backend:
 
 ```text
 PostgreSQL container -> migrations -> seed data -> backend -> frontend
@@ -143,7 +148,7 @@ npx nx affected -t lint,test,build
 
 ### Assumptions and Risks
 
-- Existing in-memory items cannot be recovered after the running backend process is stopped; manually entered data must be exported before migration if it matters.
+- Data entered before Phase 1 was not recoverable after the in-memory backend process stopped; current item data is durable in PostgreSQL.
 - Seed fixtures should be deterministic, committed, offline-capable, transactional, and idempotent.
 - PostgreSQL should be used for both development and integration testing so database-specific behavior is exercised.
 - The existing frontend API contract is preserved while persistence is changed behind it.
@@ -177,27 +182,29 @@ Milestones group related numbered sections rather than mapping to them one-to-on
 
 Detailed plan: [Database implementation plan](db-implementation.md)
 
-- [ ] Add a Docker Compose service for PostgreSQL with a named volume and health check.
-- [ ] Add SQLAlchemy 2.x async database models and session management.
-- [ ] Add Alembic and create the initial schema migration.
-- [ ] Model item data with database constraints and indexes.
-- [ ] Add version-controlled item seed fixtures.
-- [ ] Implement a transactional, idempotent seed command.
-- [ ] Define and document transaction boundaries in the service/repository architecture.
-- [ ] Practice explicit commit and rollback behavior, including multiple operations in one transaction.
-- [ ] Test successful transactions, constraint failures, and rollback without partially persisted state.
-- [ ] Replace the in-memory item store with PostgreSQL persistence.
-- [ ] Preserve all existing endpoint paths, payloads, status codes, and error responses.
-- [ ] Document database startup, migration, seeding, inspection, shutdown, and reset commands.
-- [ ] Verify migrations can upgrade a blank database, downgrade to base, and upgrade again.
-- [ ] Verify item data survives API and database container restarts.
-- [ ] Verify backend behavior when PostgreSQL is unavailable at startup or becomes temporarily unavailable.
+- [x] Add a Docker Compose service for PostgreSQL with a named volume and health check.
+- [x] Add SQLAlchemy 2.x async database models and session management.
+- [x] Add Alembic and create the initial schema migration.
+- [x] Model item data with database constraints and indexes.
+- [x] Add version-controlled item seed fixtures.
+- [x] Implement a transactional, idempotent seed command.
+- [x] Define and document transaction boundaries in the service/repository architecture.
+- [x] Practice explicit commit and rollback behavior, including multiple operations in one transaction.
+- [x] Test successful transactions, constraint failures, and rollback without partially persisted state.
+- [x] Replace the in-memory item store with PostgreSQL persistence.
+- [x] Preserve all existing endpoint paths, payloads, status codes, and error responses.
+- [x] Document database startup, migration, seeding, inspection, shutdown, and reset commands.
+- [x] Verify migrations can upgrade a blank database, downgrade to base, and upgrade again.
+- [x] Verify item data survives API and database container restarts.
+- [x] Verify backend behavior when PostgreSQL is unavailable at startup or becomes temporarily unavailable.
 
 **Done when:** local development is repeatable from an empty machine and persisted data survives restarts.
 
-### Planned Local Run Workflow
+**Status:** Completed for Phase 1.
 
-After the database tasks above are implemented, the complete local workflow should be:
+### Local Run Workflow
+
+The complete local workflow is:
 
 ```bash
 # Terminal 1: start PostgreSQL
@@ -232,7 +239,7 @@ uv run alembic upgrade head
 uv run python -m app.seed
 ```
 
-These commands are intentionally documented before implementation so the target developer experience is clear. Until the database work is complete, the current workflow remains `cd backend && uv run fastapi dev main.py`, followed by `cd frontend && npm run dev` in a second terminal.
+These commands keep schema migration, deterministic seeding, and application startup as separate observable steps.
 
 ## Phase 2. Backend Modularity
 

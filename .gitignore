@@ -18,6 +18,8 @@ frontend/dist-ssr/
 # Logs and local overrides
 logs/
 *.log
+.env
+**/.env
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
