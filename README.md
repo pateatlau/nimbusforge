@@ -60,13 +60,12 @@ The frontend sends requests to `/api`, which Vite proxies to the FastAPI server 
 - Create items with an optional description
 - Edit existing items
 - Delete items
-- Retrieve USD exchange-rate data from `GET /exchange-rates`
 
 ## Current Data Behavior
 
-Item data is currently stored in backend memory and is lost when the FastAPI process restarts. Exchange-rate data currently comes from a public API at request time.
+Item data is currently stored in backend memory and is lost when the FastAPI process restarts.
 
-The next project milestone replaces both data sources with a containerized PostgreSQL database, versioned migrations, and repeatable seed data. See the [database implementation plan](docs/db-implementation.md) for the proposed architecture and delivery steps.
+The next project milestone replaces the in-memory store with a containerized PostgreSQL database, versioned migrations, and repeatable seed data. See the [database implementation plan](docs/db-implementation.md) for the proposed architecture and delivery steps.
 
 ## Useful Commands
 

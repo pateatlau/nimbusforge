@@ -24,6 +24,5 @@ The Vite development server proxies frontend requests from `/api` to this servic
 ## Current Data Sources
 
 - Item CRUD uses an in-memory store and resets when the process restarts.
-- `GET /exchange-rates` reads from the public ExchangeRate-API service.
 
 The planned PostgreSQL migration is documented in [../docs/db-implementation.md](../docs/db-implementation.md).

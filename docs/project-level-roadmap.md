@@ -199,6 +199,7 @@ After the database tasks above are implemented, the complete local workflow shou
 # Terminal 1: start PostgreSQL
 cd backend
 docker compose up -d db
+until [ "$(docker inspect --format='{{.State.Health.Status}}' "$(docker compose ps -q db)")" = "healthy" ]; do sleep 1; done
 docker compose ps
 
 # Terminal 1: apply the schema and load deterministic seed data
@@ -222,6 +223,7 @@ For a clean database reset, the planned workflow is:
 cd backend
 docker compose down -v
 docker compose up -d db
+until [ "$(docker inspect --format='{{.State.Health.Status}}' "$(docker compose ps -q db)")" = "healthy" ]; do sleep 1; done
 uv run alembic upgrade head
 uv run python -m app.seed
 ```
