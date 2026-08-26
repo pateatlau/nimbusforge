@@ -1,8 +1,10 @@
-# Project-Level Roadmap
+# NimbusForge Project-Level Roadmap
 
 This roadmap tracks repository-wide work in priority order. Detailed feature plans should remain in separate documents and be linked from the relevant section here.
 
 ## Project Overview
+
+**Project name:** NimbusForge
 
 **Current level:** See the Status Snapshot below for implementation status.
 

@@ -1,6 +1,6 @@
 # Backend
 
-FastAPI backend for the item CRUD application.
+FastAPI backend for NimbusForge.
 
 ## Prerequisites
 
