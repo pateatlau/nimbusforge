@@ -4,9 +4,8 @@ This frontend uses React, TypeScript, and Vite. The repository root pins the Nod
 
 ## Prerequisites
 
-- Node.js 22.12.0
+- Node.js at the version pinned in the repository root `.nvmrc`
 - npm 10.9.2
-- The repository root `.nvmrc` defines the supported runtime version
 
 ## Development
 
