@@ -1,6 +1,6 @@
-# FastAPI + React Learning Project
+# NimbusForge
 
-A small full-stack item CRUD application for practicing FastAPI, React, TypeScript, uv, API integration, and database-backed development.
+NimbusForge is a full-stack item CRUD application for practicing FastAPI, React, TypeScript, uv, API integration, and database-backed development.
 
 The repository keeps the backend and frontend as separate projects while sharing project-level documentation from `docs/`.
 

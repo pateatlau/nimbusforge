@@ -1,4 +1,4 @@
-# Database Implementation Plan
+# NimbusForge Database Implementation Plan
 
 ## Goal
 
@@ -116,11 +116,11 @@ Run the commands in this plan from `backend/` unless a step says otherwise.
 3. Add `backend/.env.example` containing non-secret local defaults and an async URL such as:
 
    ```dotenv
-   POSTGRES_DB=fastapi_uv
-   POSTGRES_USER=fastapi_uv
-   POSTGRES_PASSWORD=fastapi_uv_dev
+   POSTGRES_DB=nimbusforge
+   POSTGRES_USER=nimbusforge
+   POSTGRES_PASSWORD=nimbusforge_dev
    POSTGRES_PORT=5432
-   DATABASE_URL=postgresql+asyncpg://fastapi_uv:fastapi_uv_dev@localhost:5432/fastapi_uv
+   DATABASE_URL=postgresql+asyncpg://nimbusforge:nimbusforge_dev@localhost:5432/nimbusforge
    ```
 
 4. Initialize Alembic with the async template:
