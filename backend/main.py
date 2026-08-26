@@ -3,13 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx
 
-from my_module import hello
-from packages.my_class import MyClass
-from packages.my_function import add
-
-hello_patea = MyClass("Patea").hello()
-sum = add(12, 34)
-
 app = FastAPI()
 
 # Allow the Vite dev server (and any local origin) to call the API directly.
@@ -37,16 +30,6 @@ class Item(ItemIn):
 # Simple in-memory store (resets on server restart).
 items: dict[int, Item] = {}
 next_id = 1
-
-
-@app.get("/")
-async def get_root():
-    response: dict[str, object] = {
-        "hello": hello(),
-        "sum": sum,
-        "hello_patea": hello_patea
-    }
-    return response
 
 
 @app.get("/items", response_model=list[Item])
