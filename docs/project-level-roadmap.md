@@ -17,6 +17,7 @@ This roadmap tracks repository-wide work in priority order. Detailed feature pla
 - Backend and frontend dependencies are separated into their own project directories.
 - The backend uses uv with `backend/pyproject.toml`, `backend/uv.lock`, `backend/.venv`, and a pinned Python version in `backend/.python-version`.
 - The frontend uses npm with `frontend/package.json` and `frontend/package-lock.json`.
+- The repository root pins Python and Node.js versions, includes root Node tooling, and documents the repo-level setup and ownership boundaries.
 - Shared project documentation lives in `docs/`.
 
 **Not implemented yet:**
@@ -24,7 +25,6 @@ This roadmap tracks repository-wide work in priority order. Detailed feature pla
 - PostgreSQL, Docker Compose, migrations, and seed data
 - Backend modularization beyond `main.py`
 - Backend and frontend automated tests
-- Root repository tooling and pinned Python/Node.js runtime versions (completed in Phase 0)
 - Tailwind CSS, shadcn/ui, design tokens, and reusable frontend components
 - ESLint and Prettier for frontend quality checks
 - Ruff and Pyright for backend quality checks

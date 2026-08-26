@@ -6,11 +6,11 @@ FastAPI backend for NimbusForge.
 
 - Python 3.12 (pinned in both the repository-root `.python-version` and `backend/.python-version`; keep them in sync)
 - [uv](https://docs.astral.sh/uv/)
-- Root runtime pinning is defined in the top-level `.python-version` and the backend runtime pin is defined in `backend/.python-version`
+- Root runtime pinning is defined in the top-level `.python-version`, and the backend runtime pin is defined in `backend/.python-version`
 
 ## Development
 
-Run all backend commands from this directory:
+Run backend commands from the repository root:
 
 ```bash
 cd backend

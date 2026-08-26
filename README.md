@@ -8,7 +8,7 @@ This repository keeps the backend and frontend in separate project trees while p
 
 - **Backend:** Python 3.12, FastAPI, Pydantic, uv, and HTTPX
 - **Frontend:** React 19, TypeScript, Vite, and Oxlint
-- **Repository tooling:** Node.js 22.12.0, npm 10.9.2, and Nx for repo-level orchestration
+- **Repository tooling:** Node.js 22.23.0, npm 10.9.2, and Nx for repo-level orchestration
 - **Planned database layer:** PostgreSQL, SQLAlchemy, and Alembic
 
 ## Repository Structure
@@ -40,7 +40,7 @@ Application-specific guidance:
 - Git
 - Python 3.12
 - [uv](https://docs.astral.sh/uv/)
-- Node.js 22.12.0 and npm 10.9.2
+- Node.js 22.23.0 and npm 10.9.2
 - Docker Desktop or Docker Engine for future database work
 
 ## Runtime and Dependency Ownership
@@ -52,11 +52,13 @@ Application-specific guidance:
 
 ## Initial Setup
 
-Use the repository-pinned runtimes before installing dependencies:
+From the repository root, select the pinned runtime and match the expected npm version before installing dependencies:
 
 ```bash
 nvm install
 nvm use
+npm install -g npm@10.9.2
+npm --version
 ```
 
 Install the repo-level Node tooling with the committed lockfile:
