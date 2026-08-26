@@ -1,32 +1,29 @@
 # NimbusForge Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+This frontend uses React, TypeScript, and Vite. The repository root pins the Node.js version and installs repo-level tooling such as Nx, while the frontend package owns the app-specific dependencies and scripts.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 22.12.0
+- npm 10.9.2
+- The repository root `.nvmrc` defines the supported runtime version
 
-## React Compiler
+## Development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Install dependencies with the committed lockfile:
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+cd frontend
+npm ci
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+The Vite dev server runs at the URL reported by the command, typically `http://localhost:5173`.
+
+The frontend proxies `/api` to the FastAPI backend at `http://localhost:8000`.
+
+## Repository Boundaries
+
+- `frontend/package.json` and `frontend/package-lock.json` own the React, TypeScript, Vite, and linting setup.
+- The root `package.json` owns Nx and other repo-level Node tooling only.
+- Shared onboarding and root runtime pinning live in the repository root `README.md`, `.nvmrc`, and `.python-version`.
