@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from sqlalchemy.exc import DBAPIError
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import repositories
@@ -35,8 +35,8 @@ app.add_middleware(
 )
 
 
-@app.exception_handler(DBAPIError)
-async def database_unavailable(_: Request, __: DBAPIError) -> JSONResponse:
+@app.exception_handler(OperationalError)
+async def database_unavailable(_: Request, __: OperationalError) -> JSONResponse:
     return JSONResponse(status_code=503, content={"detail": "Database unavailable"})
 
 

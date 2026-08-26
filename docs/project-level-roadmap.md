@@ -30,7 +30,7 @@ This roadmap tracks repository-wide work in priority order. Detailed feature pla
 - Tailwind CSS, shadcn/ui, design tokens, and reusable frontend components
 - ESLint and Prettier for frontend quality checks
 - Ruff and Pyright for backend quality checks
-- Environment examples and environment-specific configuration
+- Frontend environment examples and environment-specific configuration beyond the implemented backend local defaults
 - Pre-commit hooks, CI/CD, and deployment configuration
 - Nx monorepo orchestration
 - AWS CDK infrastructure and production deployment

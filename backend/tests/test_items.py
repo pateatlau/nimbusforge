@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 from httpx import ASGITransport, AsyncClient
 from pytest import MonkeyPatch
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 import main
 from app.database import get_session
@@ -49,6 +49,24 @@ async def test_item_not_found_contract(client: AsyncClient) -> None:
     assert (await client.delete("/items/999")).json() == expected
 
 
+async def test_blank_item_names_are_rejected(client: AsyncClient) -> None:
+    create_response = await client.post(
+        "/items",
+        json={"name": "   ", "description": None},
+    )
+    assert create_response.status_code == 422
+
+    created = await client.post(
+        "/items",
+        json={"name": "Valid", "description": None},
+    )
+    update_response = await client.put(
+        f"/items/{created.json()['id']}",
+        json={"name": "", "description": "Unchanged behavior"},
+    )
+    assert update_response.status_code == 422
+
+
 async def test_startup_fails_when_database_is_unavailable(
     monkeypatch: MonkeyPatch,
 ) -> None:
@@ -88,3 +106,25 @@ async def test_request_returns_503_after_database_outage() -> None:
 
     assert response.status_code == 503
     assert response.json() == {"detail": "Database unavailable"}
+
+
+async def test_integrity_error_is_not_reported_as_database_outage() -> None:
+    class InvalidDataSession:
+        async def scalars(self, _):
+            raise IntegrityError("INSERT items", {}, Exception("constraint failure"))
+
+    async def invalid_data_session():
+        yield InvalidDataSession()
+
+    main.app.dependency_overrides[get_session] = invalid_data_session
+    try:
+        async with AsyncClient(
+            transport=ASGITransport(app=main.app, raise_app_exceptions=False),
+            base_url="http://test",
+        ) as client:
+            response = await client.get("/items")
+    finally:
+        main.app.dependency_overrides.clear()
+
+    assert response.status_code == 500
+    assert response.text == "Internal Server Error"

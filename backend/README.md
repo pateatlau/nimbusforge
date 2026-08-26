@@ -59,9 +59,10 @@ uv run python -m app.seed
 ```
 
 PostgreSQL publishes host port `55432` by default to avoid conflicts with local
-PostgreSQL installations. The container continues to listen on port `5432`.
-To use another host port, set the same value in `POSTGRES_PORT`, `DATABASE_URL`,
-and `TEST_DATABASE_URL` in `.env` before starting Compose.
+PostgreSQL installations and binds it to `127.0.0.1` by default. The container
+continues to listen on port `5432`. To use another host port, set the same value
+in `POSTGRES_PORT`, `DATABASE_URL`, and `TEST_DATABASE_URL` in `.env`. Set
+`POSTGRES_BIND_ADDRESS` only when remote host access is intentional.
 
 ## Transactions
 

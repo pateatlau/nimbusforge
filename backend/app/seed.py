@@ -31,6 +31,8 @@ async def seed_items(seed_path: Path = SEED_PATH) -> None:
 
     async with async_session_factory() as session:
         async with session.begin():
+            await session.execute(text("LOCK TABLE items IN SHARE ROW EXCLUSIVE MODE"))
+
             for item in items:
                 values = item.model_dump()
                 statement = insert(Item).values(**values)

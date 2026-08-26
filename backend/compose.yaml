@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nimbusforge_dev}
       POSTGRES_TEST_DB: ${POSTGRES_TEST_DB:-nimbusforge_test}
     ports:
-      - "${POSTGRES_PORT:-55432}:5432"
+      - "${POSTGRES_BIND_ADDRESS:-127.0.0.1}:${POSTGRES_PORT:-55432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/init-test-db.sh:/docker-entrypoint-initdb.d/01-create-test-db.sh:ro
