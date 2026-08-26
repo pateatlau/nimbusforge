@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "name": "Forge workspace",
+    "description": "Prepare the local NimbusForge workspace"
+  },
+  {
+    "id": 2,
+    "name": "Review API",
+    "description": "Inspect the item CRUD endpoints"
+  },
+  {
+    "id": 3,
+    "name": "Plan next iteration",
+    "description": null
+  }
+]

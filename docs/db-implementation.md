@@ -4,16 +4,19 @@
 
 Replace the backend's process-local item store with a Dockerized local database. Keep the existing HTTP API contract unchanged so the frontend continues to work without code changes.
 
-## Current State
+**Status:** Implemented and verified in Phase 1.
 
-The backend is a single FastAPI module in `backend/main.py`.
+## Implemented State
 
-- `GET /items` reads from an in-memory `dict[int, Item]`.
-- `POST /items`, `PUT /items/{item_id}`, and `DELETE /items/{item_id}` mutate that dictionary.
-- Item IDs come from a process-local integer counter.
-- All item data is lost whenever the backend restarts.
+- `backend/main.py` retains the FastAPI routes and delegates item persistence to `backend/app/` modules.
+- Item CRUD uses SQLAlchemy 2.x async sessions and PostgreSQL-generated identity values.
+- PostgreSQL 16 runs through Docker Compose with a health check, named volume, and dedicated integration-test database.
+- Alembic owns the `items` schema, nonblank-name check constraint, and name index.
+- `python -m app.seed` validates committed JSON fixtures before loading them in one idempotent transaction.
+- Route handlers own commit and rollback boundaries; repository writes flush without committing so multiple operations can remain atomic.
+- Startup checks database connectivity, and request-time driver failures return a safe `503` response.
+- PostgreSQL-backed tests cover migration cycling, CRUD, constraints, transaction rollback, seeding, and outage behavior.
 - The frontend calls only `/items` through the Vite `/api` proxy. Its expected item shape is `{ id: number, name: string, description: string | null }`.
-- There are no database, migration, seed, or backend test files yet.
 
 ## Recommendation: PostgreSQL
 
@@ -35,7 +38,7 @@ Use these components:
 - A separate, idempotent Python seed command.
 - FastAPI lifespan setup for engine disposal. Schema creation must remain Alembic's responsibility; do not call `create_all()` at application startup.
 
-Suggested file layout:
+Implemented file layout:
 
 ```text
 .
@@ -59,6 +62,7 @@ Suggested file layout:
 │   │   └── items.json
 │   ├── tests/
 │   │   ├── conftest.py
+│   │   ├── test_database.py
 │   │   └── test_items.py
 │   ├── main.py
 │   ├── pyproject.toml
@@ -108,7 +112,7 @@ Run the commands in this plan from `backend/` unless a step says otherwise.
 
 2. Add `backend/compose.yaml` with a `db` service based on `postgres:16-alpine`:
    - Read database name, user, password, and published port from environment variables with development defaults.
-   - Publish port `5432` for local backend access.
+   - Publish host port `55432` to PostgreSQL's container port `5432` for local backend access.
    - Persist `/var/lib/postgresql/data` in a named volume.
    - Add a `pg_isready` health check.
    - Do not commit real credentials.
@@ -119,8 +123,8 @@ Run the commands in this plan from `backend/` unless a step says otherwise.
    POSTGRES_DB=nimbusforge
    POSTGRES_USER=nimbusforge
    POSTGRES_PASSWORD=nimbusforge_dev
-   POSTGRES_PORT=5432
-   DATABASE_URL=postgresql+asyncpg://nimbusforge:nimbusforge_dev@localhost:5432/nimbusforge
+   POSTGRES_PORT=55432
+   DATABASE_URL=postgresql+asyncpg://nimbusforge:nimbusforge_dev@localhost:55432/nimbusforge
    ```
 
 4. Initialize Alembic with the async template:

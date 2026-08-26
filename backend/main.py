@@ -1,8 +1,26 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import DBAPIError
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app import repositories
+from app.database import check_database_connection, engine, get_session
+from app.schemas import Item, ItemIn
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    await check_database_connection()
+    try:
+        yield
+    finally:
+        await engine.dispose()
+
+
+app = FastAPI(lifespan=lifespan)
 
 # Allow the Vite dev server (and any local origin) to call the API directly.
 app.add_middleware(
@@ -17,53 +35,47 @@ app.add_middleware(
 )
 
 
-class ItemIn(BaseModel):
-    name: str
-    description: str | None = None
-
-
-class Item(ItemIn):
-    id: int
-
-
-# Simple in-memory store (resets on server restart).
-items: dict[int, Item] = {}
-next_id = 1
+@app.exception_handler(DBAPIError)
+async def database_unavailable(_: Request, __: DBAPIError) -> JSONResponse:
+    return JSONResponse(status_code=503, content={"detail": "Database unavailable"})
 
 
 @app.get("/items", response_model=list[Item])
-async def list_items():
-    return list(items.values())
+async def list_items(session: AsyncSession = Depends(get_session)):
+    return await repositories.list_items(session)
 
 
 @app.post("/items", response_model=Item, status_code=201)
-async def create_item(payload: ItemIn):
-    global next_id
-    item = Item(id=next_id, **payload.model_dump())
-    items[item.id] = item
-    next_id += 1
-    return item
+async def create_item(payload: ItemIn, session: AsyncSession = Depends(get_session)):
+    async with session.begin():
+        return await repositories.create_item(session, payload)
 
 
 @app.get("/items/{item_id}", response_model=Item)
-async def get_item(item_id: int):
-    item = items.get(item_id)
+async def get_item(item_id: int, session: AsyncSession = Depends(get_session)):
+    item = await repositories.get_item(session, item_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Item not found")
     return item
 
 
 @app.put("/items/{item_id}", response_model=Item)
-async def update_item(item_id: int, payload: ItemIn):
-    if item_id not in items:
-        raise HTTPException(status_code=404, detail="Item not found")
-    item = Item(id=item_id, **payload.model_dump())
-    items[item_id] = item
-    return item
+async def update_item(
+    item_id: int,
+    payload: ItemIn,
+    session: AsyncSession = Depends(get_session),
+):
+    async with session.begin():
+        item = await repositories.get_item(session, item_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="Item not found")
+        return await repositories.update_item(session, item, payload)
 
 
 @app.delete("/items/{item_id}", status_code=204)
-async def delete_item(item_id: int):
-    if item_id not in items:
-        raise HTTPException(status_code=404, detail="Item not found")
-    del items[item_id]
+async def delete_item(item_id: int, session: AsyncSession = Depends(get_session)):
+    async with session.begin():
+        item = await repositories.get_item(session, item_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="Item not found")
+        await repositories.delete_item(session, item)
