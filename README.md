@@ -17,7 +17,7 @@ Python/FastAPI, React/TypeScript, and repository-level engineering workflows.
 ├── .editorconfig
 ├── .nvmrc
 ├── .python-version
-├── backend/                # FastAPI, PostgreSQL configuration, and tests
+├── backend/                # Modular FastAPI application, PostgreSQL, and tests
 ├── frontend/               # React and TypeScript application
 ├── docs/                   # Shared plans and architecture documentation
 ├── package.json            # Repository-level Node and Nx tooling
@@ -92,6 +92,11 @@ backend at `http://localhost:8000`; FastAPI documentation is available at
 Item CRUD is persisted in PostgreSQL and survives backend and database container
 restarts. Alembic migrations and seed loading remain explicit commands; the
 application does not create or seed the schema during startup.
+
+The backend keeps `main.py` as a small import shim. Application assembly and
+lifecycle behavior live in `backend/app/application.py`, item HTTP routes live
+in `backend/app/routers/`, and persistence remains isolated in the database,
+model, and repository modules.
 
 ## Native Commands
 

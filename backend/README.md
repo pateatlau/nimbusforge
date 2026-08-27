@@ -1,7 +1,6 @@
 # Backend
 
-FastAPI backend for NimbusForge, backed by PostgreSQL 16 through SQLAlchemy's
-async ORM and versioned with Alembic migrations.
+FastAPI backend for NimbusForge, backed by PostgreSQL 16 through SQLAlchemy's async ORM and versioned with Alembic migrations.
 
 ## Prerequisites
 
@@ -66,7 +65,7 @@ in `POSTGRES_PORT`, `DATABASE_URL`, and `TEST_DATABASE_URL` in `.env`. Set
 
 ## Transactions
 
-Route handlers and the seed command own transaction boundaries with
+Item route handlers and the seed command own transaction boundaries with
 `session.begin()`. Repository functions issue queries and `flush()` writes but
 never commit, so one caller can group multiple repository operations into one
 atomic transaction. Leaving the transaction block commits successful work;
@@ -93,9 +92,17 @@ rollback, seed idempotency and rollback, and database outage behavior. Override
 
 ## Source Layout
 
-- `main.py` defines the FastAPI lifecycle, middleware, error handling, and item routes.
+- `main.py` is the FastAPI import shim used by the development command.
+- `app/application.py` creates the FastAPI application and owns lifespan,
+  middleware, and database error handling.
+- `app/routers/items.py` owns item routes and coordinates HTTP behavior and write
+  transactions.
 - `app/config.py` and `app/database.py` own settings, the engine, and sessions.
-- `app/models.py`, `app/schemas.py`, and `app/repositories.py` own item persistence.
+- `app/models.py` owns SQLAlchemy item persistence models.
+- `app/schemas.py` owns transport validation and request/response schemas without
+  depending on FastAPI or PostgreSQL.
+- `app/repositories.py` owns independently testable item queries and writes
+  without HTTP concerns or commits.
 - `alembic/` contains the versioned schema history.
 - `seeds/items.json` and `app/seed.py` own deterministic local seed data.
 - `tests/` contains PostgreSQL-backed Phase 1 integration tests.

@@ -5,6 +5,7 @@ from pytest import MonkeyPatch
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 import main
+from app import application
 from app.database import get_session
 
 
@@ -72,7 +73,7 @@ async def test_startup_fails_when_database_is_unavailable(
 ) -> None:
     unavailable = OperationalError("SELECT 1", {}, Exception("unavailable"))
     monkeypatch.setattr(
-        main,
+        application,
         "check_database_connection",
         AsyncMock(side_effect=unavailable),
     )

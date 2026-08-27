@@ -8,7 +8,7 @@ Replace the backend's process-local item store with a Dockerized local database.
 
 ## Implemented State
 
-- `backend/main.py` retains the FastAPI routes and delegates item persistence to `backend/app/` modules.
+- `backend/main.py` is a small import shim; application assembly and item routes live in `backend/app/` modules.
 - Item CRUD uses SQLAlchemy 2.x async sessions and PostgreSQL-generated identity values.
 - PostgreSQL 16 runs through Docker Compose with a health check, named volume, and dedicated integration-test database.
 - Alembic owns the `items` schema, nonblank-name check constraint, and name index.
@@ -52,11 +52,15 @@ Implemented file layout:
 │   │       └── 0001_create_items.py
 │   ├── app/
 │   │   ├── __init__.py
+│   │   ├── application.py
 │   │   ├── config.py
 │   │   ├── database.py
 │   │   ├── models.py
-│   │   ├── schemas.py
 │   │   ├── repositories.py
+│   │   ├── routers/
+│   │   │   ├── __init__.py
+│   │   │   └── items.py
+│   │   ├── schemas.py
 │   │   └── seed.py
 │   ├── seeds/
 │   │   └── items.json
@@ -72,7 +76,7 @@ Implemented file layout:
 └── README.md
 ```
 
-Keep `backend/main.py` as the FastAPI entry point. From `backend/`, the `uv run fastapi dev main.py` command remains valid. It should define or import `app`, register the same routes, and delegate persistence to repository functions.
+`backend/main.py` remains the FastAPI entry point and imports the application created by `app/application.py`. From `backend/`, the `uv run fastapi dev main.py` command remains valid. The application factory registers the item router, which delegates persistence to repository functions.
 
 ## Database Schema
 
