@@ -11,7 +11,7 @@ from app.routers.items import router as items_router
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI) -> AsyncGenerator[None]:
+async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     await check_database_connection()
     try:
         yield
