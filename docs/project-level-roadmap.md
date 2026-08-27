@@ -10,7 +10,7 @@ This roadmap tracks repository-wide work in priority order. Detailed feature pla
 
 **Implemented today:**
 
-- The backend is a FastAPI application in `backend/main.py`.
+- The backend is a modular FastAPI application assembled in `backend/app/application.py`, with `backend/main.py` as its import shim.
 - Item CRUD is persisted in PostgreSQL through SQLAlchemy's async ORM.
 - Docker Compose provides PostgreSQL 16 with health checks, a named volume, and a dedicated test database.
 - Alembic owns schema migrations, and committed fixtures load through a transactional, idempotent seed command.
@@ -25,7 +25,6 @@ This roadmap tracks repository-wide work in priority order. Detailed feature pla
 
 **Not implemented yet:**
 
-- Backend modularization beyond the persistence modules required by Phase 1
 - Backend tests outside Phase 1 database integration coverage, and frontend automated tests
 - Tailwind CSS, shadcn/ui, design tokens, and reusable frontend components
 - ESLint and Prettier for frontend quality checks
@@ -45,7 +44,7 @@ The checkboxes below describe the target project state. A command shown in a fut
 | FastAPI item CRUD                    | Implemented with PostgreSQL |
 | React/Vite frontend                  | Implemented                 |
 | PostgreSQL persistence               | Implemented                 |
-| Backend modularity                   | Planned                     |
+| Backend modularity                   | Implemented                 |
 | Automated tests                      | Phase 1 integration tests   |
 | Frontend design system               | Planned                     |
 | Root tooling and runtime pinning     | Implemented                 |
@@ -243,20 +242,22 @@ These commands keep schema migration, deterministic seeding, and application sta
 
 ## Phase 2. Backend Modularity
 
-- [ ] Create a backend application package such as `backend/app/`.
-- [ ] Keep `backend/main.py` as a small FastAPI entry point or app import shim.
-- [ ] Move Pydantic request and response schemas into a schema module.
-- [ ] Move SQLAlchemy models and database configuration into dedicated modules.
-- [ ] Group item endpoints into `APIRouter` modules.
-- [ ] Add repository or service modules where they separate persistence from HTTP concerns.
-- [ ] Use FastAPI dependencies for database sessions and other request-scoped resources.
-- [ ] Add an application factory or lifespan handler for startup and shutdown resources.
-- [ ] Keep module boundaries proportional to the project; avoid one-file-per-function abstractions.
-- [ ] Update backend documentation with the resulting architecture and entry points.
-- [ ] Keep pure business logic independent from FastAPI and PostgreSQL where practical so it can be unit tested.
-- [ ] Return safe, actionable failures without leaking connection strings, SQL, stack traces, or other sensitive implementation details.
+- [x] Create a backend application package such as `backend/app/`.
+- [x] Keep `backend/main.py` as a small FastAPI entry point or app import shim.
+- [x] Move Pydantic request and response schemas into a schema module.
+- [x] Move SQLAlchemy models and database configuration into dedicated modules.
+- [x] Group item endpoints into `APIRouter` modules.
+- [x] Add repository or service modules where they separate persistence from HTTP concerns.
+- [x] Use FastAPI dependencies for database sessions and other request-scoped resources.
+- [x] Add an application factory or lifespan handler for startup and shutdown resources.
+- [x] Keep module boundaries proportional to the project; avoid one-file-per-function abstractions.
+- [x] Update backend documentation with the resulting architecture and entry points.
+- [x] Keep pure business logic independent from FastAPI and PostgreSQL where practical so it can be unit tested.
+- [x] Return safe, actionable failures without leaking connection strings, SQL, stack traces, or other sensitive implementation details.
 
 **Done when:** route handlers coordinate HTTP behavior, persistence code is independently testable, and `main.py` no longer owns schemas, storage, and business logic.
+
+**Status:** Completed for Phase 2.
 
 ## Phase 3. Automated Tests
 
