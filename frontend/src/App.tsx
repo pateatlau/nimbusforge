@@ -1,36 +1,75 @@
-import { useEffect, useState } from 'react';
-import type { SubmitEvent } from 'react';
-import { itemsApi } from './api/items';
-import type { Item } from './types';
-import './App.css';
+import { RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
+import { toast } from "sonner";
+import { itemsApi } from "@/api/items";
+import { ThemeMenu } from "@/components/theme-menu";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { StateMessage } from "@/components/ui/state-message";
+import { Toaster } from "@/components/ui/toast";
+import { ItemForm } from "@/features/items/item-form";
+import { ItemTable } from "@/features/items/item-table";
+import type { Item } from "@/types";
 
 function App() {
   const [items, setItems] = useState<Item[]>([]);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [requestError, setRequestError] = useState<string | null>(null);
+
+  async function loadItems() {
+    setInitialLoading(true);
+    setLoadError(null);
+    try {
+      setItems(await itemsApi.list());
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Unable to load items");
+    } finally {
+      setInitialLoading(false);
+    }
+  }
 
   useEffect(() => {
+    let active = true;
+
     itemsApi
       .list()
-      .then(setItems)
-      .catch((err: Error) => setError(err.message));
+      .then((result) => {
+        if (active) setItems(result);
+      })
+      .catch((err: unknown) => {
+        if (active) {
+          setLoadError(
+            err instanceof Error ? err.message : "Unable to load items",
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setInitialLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   function resetForm() {
-    setName('');
-    setDescription('');
+    setName("");
+    setDescription("");
     setEditingId(null);
   }
 
-  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!name.trim()) return;
 
-    setLoading(true);
-    setError(null);
+    setSaving(true);
+    setRequestError(null);
     const input = {
       name: name.trim(),
       description: description.trim() || null,
@@ -40,111 +79,124 @@ function App() {
       if (editingId === null) {
         const created = await itemsApi.create(input);
         setItems((prev) => [...prev, created]);
+        toast.success("Item added", { description: created.name });
       } else {
         const updated = await itemsApi.update(editingId, input);
         setItems((prev) =>
           prev.map((it) => (it.id === updated.id ? updated : it)),
         );
+        toast.success("Changes saved", { description: updated.name });
       }
       resetForm();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Request failed');
+      setRequestError(err instanceof Error ? err.message : "Request failed");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   }
 
   function startEdit(item: Item) {
     setEditingId(item.id);
     setName(item.name);
-    setDescription(item.description ?? '');
+    setDescription(item.description ?? "");
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
   }
 
   async function handleDelete(id: number) {
-    setError(null);
+    setRequestError(null);
     try {
       await itemsApi.remove(id);
+      const deleted = items.find((item) => item.id === id);
       setItems((prev) => prev.filter((it) => it.id !== id));
       if (editingId === id) resetForm();
+      toast.success("Item deleted", { description: deleted?.name });
+      return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Delete failed');
+      setRequestError(err instanceof Error ? err.message : "Delete failed");
+      return false;
     }
   }
 
   return (
-    <div className="app">
-      <h1>Items</h1>
-
-      <form
-        className="item-form"
-        onSubmit={handleSubmit}
-      >
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Name"
-          required
-        />
-        <input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Description (optional)"
-        />
-        <div className="form-actions">
-          <button
-            type="submit"
-            disabled={loading}
-            className="primary"
-          >
-            {editingId === null ? 'Add item' : 'Save changes'}
-          </button>
-          {editingId !== null && (
-            <button
-              type="button"
-              onClick={resetForm}
-              disabled={loading}
-            >
-              Cancel
-            </button>
-          )}
+    <div className="min-h-svh">
+      <header className="border-b bg-card/90">
+        <div className="mx-auto flex min-h-16 max-w-(--size-content) items-center justify-between gap-4 px-4 sm:px-page">
+          <div>
+            <p className="m-0 text-base font-bold">NimbusForge</p>
+            <p className="m-0 hidden text-xs text-muted-foreground sm:block">
+              Item operations workspace
+            </p>
+          </div>
+          <ThemeMenu />
         </div>
-      </form>
+      </header>
 
-      {error && <p className="error">{error}</p>}
+      <main className="mx-auto grid max-w-(--size-content) gap-6 px-4 py-6 sm:px-page sm:py-8 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start">
+        <ItemForm
+          name={name}
+          description={description}
+          editing={editingId !== null}
+          pending={saving}
+          onNameChange={(event) => setName(event.target.value)}
+          onDescriptionChange={(event) => setDescription(event.target.value)}
+          onSubmit={handleSubmit}
+          onCancel={resetForm}
+        />
 
-      {items.length === 0 ? (
-        <p className="empty">No items yet. Add one above.</p>
-      ) : (
-        <ul className="item-list">
-          {items.map((item) => (
-            <li
-              key={item.id}
-              className="item-row"
-            >
-              <div>
-                <strong>{item.name}</strong>
-                {item.description && (
-                  <span className="item-desc">— {item.description}</span>
-                )}
-              </div>
-              <div className="row-actions">
-                <button
-                  type="button"
-                  onClick={() => startEdit(item)}
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(item.id)}
-                >
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+        <section className="grid gap-4" aria-label="Inventory">
+          {requestError && (
+            <Card>
+              <StateMessage
+                className="min-h-0 items-start py-4 text-left"
+                state="error"
+                title="Request failed"
+                description={requestError}
+              />
+            </Card>
+          )}
+          {initialLoading ? (
+            <Card>
+              <StateMessage
+                state="loading"
+                title="Loading inventory"
+                description="Retrieving the latest items."
+              />
+            </Card>
+          ) : loadError ? (
+            <Card>
+              <StateMessage
+                state="error"
+                title="Unable to load inventory"
+                description={loadError}
+                action={
+                  <Button variant="outline" onClick={() => void loadItems()}>
+                    <RefreshCw />
+                    Try again
+                  </Button>
+                }
+              />
+            </Card>
+          ) : items.length === 0 ? (
+            <Card>
+              <StateMessage
+                state="empty"
+                title="No items yet"
+                description="Add the first item using the form."
+              />
+            </Card>
+          ) : (
+            <ItemTable
+              items={items}
+              onEdit={startEdit}
+              onDelete={handleDelete}
+            />
+          )}
+        </section>
+      </main>
+      <Toaster />
     </div>
   );
 }

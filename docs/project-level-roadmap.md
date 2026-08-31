@@ -26,7 +26,6 @@ This roadmap tracks repository-wide work in priority order. Detailed feature pla
 **Not implemented yet:**
 
 - Backend tests outside Phase 1 database integration coverage, and frontend automated tests
-- Tailwind CSS, shadcn/ui, design tokens, and reusable frontend components
 - ESLint and Prettier for frontend quality checks
 - Ruff and Pyright for backend quality checks
 - Frontend environment examples and environment-specific configuration beyond the implemented backend local defaults
@@ -46,7 +45,7 @@ The checkboxes below describe the target project state. A command shown in a fut
 | PostgreSQL persistence               | Implemented                 |
 | Backend modularity                   | Implemented                 |
 | Automated tests                      | Phase 1 integration tests   |
-| Frontend design system               | Planned                     |
+| Frontend design system               | Implemented                 |
 | Root tooling and runtime pinning     | Implemented                 |
 | Frontend and backend quality tooling | Planned                     |
 | Pre-commit and CI/CD                 | Planned                     |
@@ -302,32 +301,34 @@ Explicitly separate fast unit tests, PostgreSQL-backed integration tests, and br
 
 ### Styling Foundation and Tokens
 
-- [ ] Add Tailwind CSS v4 as the primary utility-first styling system.
-- [ ] Add shadcn/ui as the source-owned foundation for reusable UI primitives.
-- [ ] Document the distinction between Tailwind utilities, shadcn-generated components, shared application components, and feature-specific components.
-- [ ] Define centralized semantic design tokens for color, typography, spacing, radius, shadows, dimensions, breakpoints, and transitions.
-- [ ] Define light and dark theme tokens even if only one theme is initially exposed.
-- [ ] Require shared components to consume semantic tokens instead of scattering raw values or repeated one-off utility combinations.
-- [ ] Document where tokens live, how they are named, and how new tokens are introduced.
+- [x] Add Tailwind CSS v4 as the primary utility-first styling system.
+- [x] Add shadcn/ui as the source-owned foundation for reusable UI primitives.
+- [x] Document the distinction between Tailwind utilities, shadcn-generated components, shared application components, and feature-specific components.
+- [x] Define centralized semantic design tokens for color, typography, spacing, radius, shadows, dimensions, breakpoints, and transitions.
+- [x] Define light and dark theme tokens even if only one theme is initially exposed.
+- [x] Require shared components to consume semantic tokens instead of scattering raw values or repeated one-off utility combinations.
+- [x] Document where tokens live, how they are named, and how new tokens are introduced.
 
 ### Component Hierarchy
 
-- [ ] Separate reusable design-system components from feature-specific components.
-- [ ] Establish conventions for naming, props, composition, and variants using one consistent variant mechanism.
-- [ ] Build components in response to real application needs, beginning with Button, Input, Select, Checkbox, Dialog, Menu, Toast, Card, Table, Form, and loading/empty/error states.
-- [ ] Prefer existing or customized shadcn components where they fit; use application-specific components for domain composition and plain Tailwind for genuinely local styling.
-- [ ] Keep the design system inside the frontend application until a genuine reason exists to publish a separate package.
-- [ ] Treat shared component APIs as contracts and avoid feature-specific assumptions leaking into reusable components.
+- [x] Separate reusable design-system components from feature-specific components.
+- [x] Establish conventions for naming, props, composition, and variants using one consistent variant mechanism.
+- [x] Build components in response to real application needs, beginning with Button, Input, Select, Checkbox, Dialog, Menu, Toast, Card, Table, Form, and loading/empty/error states.
+- [x] Prefer existing or customized shadcn components where they fit; use application-specific components for domain composition and plain Tailwind for genuinely local styling.
+- [x] Keep the design system inside the frontend application until a genuine reason exists to publish a separate package.
+- [x] Treat shared component APIs as contracts and avoid feature-specific assumptions leaking into reusable components.
 
 ### Documentation, Responsiveness, and Accessibility
 
-- [ ] Document component purpose, variants, states, accessibility expectations, and intended/unintended usage.
-- [ ] Define responsive-layout conventions and test representative desktop, tablet, and mobile viewports.
-- [ ] Define keyboard behavior, visible focus treatment, labels, accessible names, and assistive-technology expectations for dialogs, menus, notifications, and dynamic content.
-- [ ] Ensure loading, empty, success, and error states do not rely on color alone.
-- [ ] Consider Storybook as an Nx-integrated stretch goal for component development and documentation.
+- [x] Document component purpose, variants, states, accessibility expectations, and intended/unintended usage.
+- [x] Define responsive-layout conventions and test representative desktop, tablet, and mobile viewports.
+- [x] Define keyboard behavior, visible focus treatment, labels, accessible names, and assistive-technology expectations for dialogs, menus, notifications, and dynamic content.
+- [x] Ensure loading, empty, success, and error states do not rely on color alone.
+- [x] Consider Storybook as an Nx-integrated stretch goal for component development and documentation. It was deferred until Nx orchestration exists and the component surface justifies the added tooling.
 
 **Done when:** the application has a small, documented, token-driven component layer that is consistent, responsive, accessible, and independently testable.
+
+**Status:** Completed for Phase 4. The optional Storybook stretch goal was considered and deferred.
 
 ## Phase 5. Frontend Quality Tooling
 
