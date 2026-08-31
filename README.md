@@ -6,7 +6,7 @@ Python/FastAPI, React/TypeScript, and repository-level engineering workflows.
 ## Stack
 
 - **Backend:** Python 3.12, FastAPI, Pydantic, SQLAlchemy, Alembic, asyncpg, and uv
-- **Frontend:** React 19, TypeScript, Vite, and Oxlint
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS v4, source-owned shadcn/ui-style components, and Oxlint
 - **Database:** PostgreSQL 16 in Docker Compose
 - **Repository tooling:** Node.js 24.11.0, npm 11.6.1, and Nx
 
@@ -97,6 +97,11 @@ The backend keeps `main.py` as a small import shim. Application assembly and
 lifecycle behavior live in `backend/app/application.py`, item HTTP routes live
 in `backend/app/routers/`, and persistence remains isolated in the database,
 model, and repository modules.
+
+The frontend uses semantic light and dark tokens with a source-owned component
+layer in `frontend/src/components/`. Domain composition remains under
+`frontend/src/features/`; see the [frontend design-system documentation](docs/frontend-design-system.md)
+for component contracts, responsive conventions, and accessibility expectations.
 
 ## Native Commands
 
