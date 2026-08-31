@@ -32,7 +32,7 @@ function StateMessage({
         className,
       )}
       role={state === "error" ? "alert" : "status"}
-      aria-live="polite"
+      aria-live={state === "error" ? undefined : "polite"}
     >
       <Icon
         className={cn(

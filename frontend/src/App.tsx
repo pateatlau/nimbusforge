@@ -99,7 +99,10 @@ function App() {
     setEditingId(item.id);
     setName(item.name);
     setDescription(item.description ?? "");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
   }
 
   async function handleDelete(id: number) {
@@ -110,8 +113,10 @@ function App() {
       setItems((prev) => prev.filter((it) => it.id !== id));
       if (editingId === id) resetForm();
       toast.success("Item deleted", { description: deleted?.name });
+      return true;
     } catch (err) {
       setRequestError(err instanceof Error ? err.message : "Delete failed");
+      return false;
     }
   }
 
